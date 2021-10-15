@@ -8,23 +8,16 @@ let collectionDataMagiceden = []
 let currentPaginator = 1
 let sumSolanart = 0
 let sumMagiceden = 0
+let startTime 
 async function start() {
   //Solanart
-  while (true) {
-    let start = new Date()
-    collectionDataSolanart = []
-    await parsingSolanartCollectionName()
-      .then((data) => {
-        collectionNameSolanart = data.map(element => element.collection);
-      })
-    await parsingSolanartCollectionData()
-    outputData(currentPaginator)
-    let end = new Date()
-    const convertTime = Math.round((end - start) % 60000 / 1000) + 'сек'
-    console.log('круг: ' + convertTime);
-    console.log('карточек: ' + collectionDataSolanart.length);
-  }
-
+  collectionDataSolanart = []
+  startTime=new Date()
+  await parsingSolanartCollectionName()
+    .then((data) => {
+      collectionNameSolanart = data.map(element => element.collection);
+    })
+  await parsingSolanartCollectionData()
   //Magiceden
   // await parsingMagicedenCollectionName()
   //   .then((data) => {
@@ -40,10 +33,9 @@ function parsingSolanartCollectionName() {
   })
 }
 
-function getSolanart(el) {
-  return fetch(`https://qzlsklfacc.medianetwork.cloud/nft_for_sale?collection=${el}`).then((data) => {
-    return data.json()
-  })
+async function getSolanart(el) {
+  const data = await fetch(`https://qzlsklfacc.medianetwork.cloud/nft_for_sale?collection=${el}`)
+  return await data.json()
 }
 //Magiceden
 function parsingMagicedenCollectionName() {
@@ -61,15 +53,24 @@ function getMagiceden(el) {
 async function parsingSolanartCollectionData() {
   for (let index = 0; index < collectionNameSolanart.length; index++) {
     const el = collectionNameSolanart[index];
-    await getSolanart(el)
+      getSolanart(el)
       .then(function (response) {
         sumSolanart += response.length
         collectionDataSolanart = collectionDataSolanart.concat(response)
+      
       }).catch(function (error) {
         console.log(error);
       })
-  }
-}
+    }
+    setTimeout(() => {
+      outputData(currentPaginator)
+      let end = new Date()
+      const convertTime = Math.round((new Date() - startTime)  ) + 'сек'
+      console.log('круг: ' + convertTime);
+      console.log('карточек: ' + collectionDataSolanart.length);
+      start()  
+    }, 2000);
+} 
 //Magiceden
 async function parsingMagicedenCollectionData() {
   for (let index = 0; index < collectionNameMagiceden.length; index++) {
