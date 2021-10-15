@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "pars": "nodemon ./routes/parsing.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   },
   "homepage": "https://github.com/IRLANDEC0151/parsingNFT#readme",
   "dependencies": {
+    "async": "^3.2.1",
     "axios": "^0.23.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
@@ -26,5 +28,6 @@
     "handlebars": "^4.7.7",
     "less": "^4.1.2",
     "nodemon": "^2.0.13"
-  }
+  },
+  "type": "module"
 }

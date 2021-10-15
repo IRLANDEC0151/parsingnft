@@ -1,9 +1,8 @@
-const { Router } = require("express");
+import { Router } from "express"
 const router = Router();
-const axios = require('axios');
-
 let collectionNameSolanart = []
 let collectionDataSolanart = []
+
 router.get('/', async (req, res) => {
     try {
         res.render("home", {
@@ -14,7 +13,6 @@ router.get('/', async (req, res) => {
     } catch (error) {
         console.log(error);
     }
-
 })
 
 router.get('/parsingSolanart', async (req, res) => {
@@ -28,8 +26,7 @@ router.get('/parsingSolanart', async (req, res) => {
 })
 router.get('/getSolanart', async (req, res) => {
     try {
-      
-        res.status(200).json({ data:collectionDataSolanart })
+        res.status(200).json({ data: collectionDataSolanart })
     } catch (error) {
         console.log(error);
     }
@@ -63,4 +60,4 @@ async function parsingSolanartCollectionData() {
     });
     return collectionDataSolanart
 }
-module.exports = router;
+export default router
