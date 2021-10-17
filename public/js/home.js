@@ -8,29 +8,42 @@ let collectionDataMagiceden = []
 let currentPaginator = 1
 let sumSolanart = 0
 let sumMagiceden = 0
-let startTime 
+let userAgent = [
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36',
+]
+let startTime
 async function start() {
   //Solanart
+  console.log("Solanart");
   collectionDataSolanart = []
-  startTime=new Date()
-  await parsingSolanartCollectionName()
-    .then((data) => {
-      collectionNameSolanart = data.map(element => element.collection);
-    })
-  await parsingSolanartCollectionData()
-  //Magiceden
-  // await parsingMagicedenCollectionName()
+  startTime = new Date()
+  // await parsingSolanartCollectionName()
   //   .then((data) => {
-  //     collectionNameMagiceden = data.collections.map(element => element.symbol);
+  //     collectionNameSolanart = data.map(element => element.collection);
   //   })
-  //  await parsingMagicedenCollectionData()
+  // await parsingSolanartCollectionData()
+  // Magiceden
+  collectionDataMagiceden = []
+  console.log("Magiceden");
+  await parsingMagicedenCollectionName()
+    .then((data) => {
+      collectionNameMagiceden = data.collections.map(element => element.symbol);
+    })
+  await parsingMagicedenCollectionData()
 
 }
 //Solanart
-function parsingSolanartCollectionName() {
-  return fetch('https://qzlsklfacc.medianetwork.cloud/query_volume_all').then((data) => {
-    return data.json()
-  })
+async function parsingSolanartCollectionName() {
+  const data = await fetch('https://qzlsklfacc.medianetwork.cloud/query_volume_all')
+  return await data.json()
 }
 
 async function getSolanart(el) {
@@ -38,52 +51,59 @@ async function getSolanart(el) {
   return await data.json()
 }
 //Magiceden
-function parsingMagicedenCollectionName() {
-  return fetch('https://api-mainnet.magiceden.io/all_collections').then((data) => {
-    return data.json()
-  })
+async function parsingMagicedenCollectionName() {
+  const data = await fetch('https://api-mainnet.magiceden.io/all_collections')
+  return await data.json()
 }
 
-function getMagiceden(el) {
-  return fetch(`https://api-mainnet.magiceden.io/rpc/getListedNFTsByQuery?q=%7B%22%24match%22%3A%7B%22collectionSymbol%22%3A%22${el}%22%7D%2C%22%24sort%22%3A%7B%22createdAt%22%3A-1%7D%2C%22%24skip%22%3A0%2C%22%24limit%22%3A1000000%7D`).then((data) => {
-    return data.json()
-  })
+async function getMagiceden(el, user) {
+  const data = await fetch(`https://api-mainnet.magiceden.io/rpc/getListedNFTsByQuery?q=%7B%22%24match%22%3A%7B%22collectionSymbol%22%3A%22${el}%22%7D%2C%22%24sort%22%3A%7B%22createdAt%22%3A-1%7D%2C%22%24skip%22%3A0%2C%22%24limit%22%3A1000000%7D`,
+    {
+      'User-Agent': user
+    }
+  )
+  return await data.json()
 }
 
 async function parsingSolanartCollectionData() {
   for (let index = 0; index < collectionNameSolanart.length; index++) {
     const el = collectionNameSolanart[index];
-      getSolanart(el)
+    getSolanart(el)
       .then(function (response) {
         sumSolanart += response.length
         collectionDataSolanart = collectionDataSolanart.concat(response)
-      
       }).catch(function (error) {
         console.log(error);
       })
-    }
-    setTimeout(() => {
-      outputData(currentPaginator)
-      let end = new Date()
-      const convertTime = Math.round((new Date() - startTime)  ) + 'сек'
-      console.log('круг: ' + convertTime);
-      console.log('карточек: ' + collectionDataSolanart.length);
-      start()  
-    }, 2000);
-} 
+  }
+  setTimeout(() => {
+    outputData(currentPaginator)
+    const convertTime = Math.round((new Date() - startTime)) + 'сек'
+    console.log('круг: ' + convertTime);
+    console.log('карточек #Solanart: ' + collectionDataSolanart.length);
+    start()
+  }, 3000);
+}
 //Magiceden
 async function parsingMagicedenCollectionData() {
   for (let index = 0; index < collectionNameMagiceden.length; index++) {
     const el = collectionNameMagiceden[index];
-    await getMagiceden(el)
+    let user = userAgent[Math.ceil(Math.random() * 8)]
+    getMagiceden(el, user)
       .then(function (response) {
-        console.log('response: ', response);
         sumMagiceden += response.results.length
         collectionDataMagiceden = collectionDataMagiceden.concat(response.results)
       }).catch(function (error) {
         console.log(error);
       })
   }
+  setTimeout(() => {
+    //outputData(currentPaginator)
+    const convertTime = Math.round((new Date() - startTime)) + 'сек'
+    console.log('круг: ' + convertTime);
+    console.log('карточек #Magiceden: ' + collectionDataMagiceden.length);
+    //start()
+  }, 5000);
 }
 function outputData(paginator) {
   let allPagination = Math.ceil(sumMagiceden / 100)
@@ -160,3 +180,12 @@ document.querySelector('.paginationNext').addEventListener('click', () => {
 })
 
 start()
+
+function parsingSolanart() {
+  fetch('/parsingSolanart')
+    .then(data => data.json())
+    .then(data => {
+      console.log(data);
+    })
+}
+//parsingSolanart()

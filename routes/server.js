@@ -1,7 +1,10 @@
 import { Router } from "express"
+import axios from "axios"
+
 const router = Router();
 let collectionNameSolanart = []
 let collectionDataSolanart = []
+let promise = []
 
 router.get('/', async (req, res) => {
     try {
@@ -35,16 +38,17 @@ async function parsingSolanartCollectionName() {
     // парсим названия коллекций
     await axios.get('https://qzlsklfacc.medianetwork.cloud/query_volume_all')
         .then(function (response) {
-            collectionNameSolanart = response.data.map(element => element.collection);
-            console.log(collectionNameSolanart);
+            collectionNameSolanart = response.data.map(element => axios.get(`https://qzlsklfacc.medianetwork.cloud/nft_for_sale?collection=${element.collection}`));
         })
         .catch(function (error) {
             console.log(error);
         })
 }
 async function parsingSolanartCollectionData() {
-    collectionNameSolanart.forEach(async (el) => {
-        await axios.get('https://qzlsklfacc.medianetwork.cloud/nft_for_sale', {
+   
+    collectionNameSolanart.forEach((el) => {
+
+        axios.get('https://qzlsklfacc.medianetwork.cloud/nft_for_sale', {
             params: {
                 collection: el
             }
